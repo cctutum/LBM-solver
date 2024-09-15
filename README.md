@@ -1,4 +1,5 @@
 # LBM-solver
-Lattice-Boltzmann Method (LBM) Fluid Simulation in Python with Numpy and JAX
+
+Flow Simulation using Lattice-Boltzmann Method (LBM) in Python with Numpy and JAX.
 
 ![](videos/vonKarman_vortex_street.gif)
