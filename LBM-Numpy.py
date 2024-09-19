@@ -1,7 +1,7 @@
 # LBM-solver using Numpy
 #======================== 
 
-# IMport libraries
+# Import libraries
 import matplotlib.pyplot as plt
 import numpy as np
 import os
