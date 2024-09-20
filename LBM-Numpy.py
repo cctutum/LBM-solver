@@ -1,5 +1,27 @@
 # LBM-solver using Numpy
-#======================== 
+#========================
+
+"""
+The Lattice Boltzmann Method (LBM) is a computational fluid dynamics (CFD) 
+technique used to simulate fluid flows. It operates on a mesoscopic scale, 
+modeling the fluid as a collection of particles distributed on a lattice. 
+These particles undergo streaming and collision processes, which approximate 
+the macroscopic behavior of the fluid without directly solving the 
+Navier-Stokes equations.
+
+During each time step, particles stream along their velocity directions to 
+neighboring nodes, followed by a collision step that relaxes the distribution 
+function towards equilibrium.
+
+Explanation
+Initialization: The distribution functions are initialized uniformly with 
+weights corresponding to the D2Q9 model.
+Equilibrium Function: Computes the equilibrium distribution based on local 
+density and velocity.
+Collision Step: Adjusts the distribution functions towards equilibrium using 
+the relaxation time τ.
+Streaming Step: Shifts the distribution functions according to their velocities.
+""" 
 
 # Import libraries
 import matplotlib.pyplot as plt
