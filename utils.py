@@ -6,7 +6,7 @@ import shutil
 def create_gif_with_PIL(path, gif_filename):
     
     # Get list of image files
-    image_files = sorted(glob.glob(path))
+    image_files = sorted(glob.glob(os.path.join(path, '*.png'))) # give pattern (".png")
     
     # Open images
     images = [Image.open(file) for file in image_files]
