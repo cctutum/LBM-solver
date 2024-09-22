@@ -38,7 +38,7 @@ def distance(x1, y1, x2, y2):
 def main():
     Nx, Ny = 400, 100 # Grid resolution
     tau = 0.53 # Kinnematic viscosity or time scale
-    Nt = 5000
+    Nt = 6000
     plotRealTime = True
     saveImages = True
     
@@ -112,7 +112,22 @@ def main():
             curl = dfydx - dfxdy
             
             # Plot Field variable
-            plt.imshow(curl, cmap="bwr") # colormap: blue for negative, red for positive values
+            # if shape of BC-boolean map (e.g., cylinder) does not match field shape,
+            # we need to trim the BC-boolean map
+            field = curl
+            if field.shape != cylinder.shape:
+                cylinder_trimmed = cylinder[1:-1, 1:-1]
+                
+            # Create a masked array
+            masked_field = np.ma.masked_array(field, mask=cylinder_trimmed)
+            
+            # Create a custom colormap
+            cmap = plt.get_cmap('bwr').copy()
+            cmap.set_bad('black', 1.0)
+            
+            plt.imshow(masked_field, cmap=cmap, interpolation='nearest') 
+            # Note on colormap: blue for negative, red for positive values
+            # plt.colorbar()
             plt.title(label=f"Curl of Velocity field - Timestep={t}", fontsize=8)
             
             if saveImages:
