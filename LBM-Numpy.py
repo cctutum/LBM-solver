@@ -125,42 +125,105 @@ Streaming Step: Shifts the distribution functions according to their velocities.
 
 ##############################################################################
 
+# import numpy as np
+
+# # Parameters
+# nx, ny = 400, 100  # Grid size
+# tau = 0.6  # Relaxation time
+# num_steps = 1000  # Number of time steps
+
+# # Lattice weights and velocity vectors for D2Q9 model
+# weights = np.array([4/9] + [1/9]*4 + [1/36]*4)
+# velocities = np.array([[0, 0], [1, 0], [0, 1], [-1, 0], [0, -1],
+#                        [1, 1], [-1, 1], [-1, -1], [1, -1]])
+
+# # Initialize distribution functions
+# f = np.ones((9, nx, ny)) * weights[:, None, None]
+
+# def equilibrium(rho, u):
+#     """ 
+#     Calculate the equilibrium distribution function based on local density 
+#     and velocity using the formula
+#     """
+#     cu = np.dot(velocities, u)
+#     usqr = u[0]**2 + u[1]**2
+#     feq = rho * weights[:, None, None] * (1 + 3*cu + 9/2*cu**2 - 3/2*usqr)
+#     return feq
+
+# # Main loop
+# for step in range(num_steps):
+#     # Compute macroscopic variables
+#     rho = np.sum(f, axis=0)
+#     u = np.dot(velocities.T, f) / rho
+
+#     # Collision step
+#     feq = equilibrium(rho, u)
+#     f += -(f - feq) / tau
+
+#     # Streaming step
+#     for i in range(9):
+#         f[i] = np.roll(np.roll(f[i], velocities[i][0], axis=0), velocities[i][1], axis=1)
+        
+##############################################################################
+
+
 import numpy as np
+import matplotlib.pyplot as plt
 
-# Parameters
-nx, ny = 400, 100  # Grid size
-tau = 0.6  # Relaxation time
-num_steps = 1000  # Number of time steps
 
-# Lattice weights and velocity vectors for D2Q9 model
-weights = np.array([4/9] + [1/9]*4 + [1/36]*4)
-velocities = np.array([[0, 0], [1, 0], [0, 1], [-1, 0], [0, -1],
-                       [1, 1], [-1, 1], [-1, -1], [1, -1]])
+def distance(x1, y1, x2, y2):
+    return np.sqrt((x2-x1)**2 + (y2-y1)**2)
 
-# Initialize distribution functions
-f = np.ones((9, nx, ny)) * weights[:, None, None]
 
-def equilibrium(rho, u):
-    """ 
-    Calculate the equilibrium distribution function based on local density 
-    and velocity using the formula
-    """
-    cu = np.dot(velocities, u)
-    usqr = u[0]**2 + u[1]**2
-    feq = rho * weights[:, None, None] * (1 + 3*cu + 9/2*cu**2 - 3/2*usqr)
-    return feq
+def main():
+    Nx, Ny = 400, 100 # Grid resolution
+    tau = 0.53 # Kinnematic viscosity or time scale
+    Nt = 3000
+    
+    # Lattice speeds and weights
+    NL = 9 # D2Q9 (9 lattice directions)
+    cxs = np.array([0, 0, 1, 1,  1,  0, -1, -1, -1])
+    cys = np.array([0, 1, 1, 0, -1, -1, -1,  0,  1])
+    weights = np.array([4/9, 1/9, 1/36, 1/9, 1/36, 1/9, 1/36, 1/9, 1/36]) # sums to 1
+    
+    # Initial Conditions (ICs)
+    F = np.ones((Ny, Nx, NL)) + 0.01 * np.random.randn(Ny, Nx, NL)
+    F[:, :, 3] = 2.3 # We assume there is a flow in the +x-direction (direction=3)
+    
+    cylinder = np.full((Ny, Nx), False)
+    
+    
+if __name__ == "__main__":
+    main()
 
-# Main loop
-for step in range(num_steps):
-    # Compute macroscopic variables
-    rho = np.sum(f, axis=0)
-    u = np.dot(velocities.T, f) / rho
 
-    # Collision step
-    feq = equilibrium(rho, u)
-    f += -(f - feq) / tau
 
-    # Streaming step
-    for i in range(9):
-        f[i] = np.roll(np.roll(f[i], velocities[i][0], axis=0), velocities[i][1], axis=1)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
