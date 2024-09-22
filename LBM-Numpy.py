@@ -30,8 +30,7 @@ Streaming Step: Shifts the distribution functions according to their velocities.
 # import utils
 
 # # Simulations Parameters and Constants
-# Nx = 400 # resolution x-dir
-# Ny = 100 # resolution y-dir
+# Nx, Ny = 400, 100 # grid resolution
 # rho0 = 100 # average density
 # tau = 0.6 # collision timescale
 # Nt = 100 # number of timesteps
@@ -129,9 +128,9 @@ Streaming Step: Shifts the distribution functions according to their velocities.
 import numpy as np
 
 # Parameters
-nx, ny = 100, 100  # Grid size
+nx, ny = 400, 100  # Grid size
 tau = 0.6  # Relaxation time
-num_steps = 1000  # Number of simulation steps
+num_steps = 1000  # Number of time steps
 
 # Lattice weights and velocity vectors for D2Q9 model
 weights = np.array([4/9] + [1/9]*4 + [1/36]*4)
@@ -142,6 +141,10 @@ velocities = np.array([[0, 0], [1, 0], [0, 1], [-1, 0], [0, -1],
 f = np.ones((9, nx, ny)) * weights[:, None, None]
 
 def equilibrium(rho, u):
+    """ 
+    Calculate the equilibrium distribution function based on local density 
+    and velocity using the formula
+    """
     cu = np.dot(velocities, u)
     usqr = u[0]**2 + u[1]**2
     feq = rho * weights[:, None, None] * (1 + 3*cu + 9/2*cu**2 - 3/2*usqr)
