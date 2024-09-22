@@ -38,7 +38,7 @@ def distance(x1, y1, x2, y2):
 def main():
     Nx, Ny = 400, 100 # Grid resolution
     tau = 0.53 # Kinnematic viscosity or time scale
-    Nt = 6000
+    Nt = 5000
     plotRealTime = True
     saveImages = True
     
@@ -121,10 +121,12 @@ def main():
             plt.pause(0.01)
             plt.cla()
         
+    if saveImages:
+        utils.create_gif_with_PIL(path_figures, "videos/Curl_Velocity.gif")
+        
     
 if __name__ == "__main__":
     main()
-
 
 
 
