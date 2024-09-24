@@ -117,6 +117,8 @@ def main():
             field = curl
             if field.shape != cylinder.shape:
                 cylinder_trimmed = cylinder[1:-1, 1:-1]
+            else:
+                cylinder_trimmed = cylinder
                 
             # Create a masked array
             masked_field = np.ma.masked_array(field, mask=cylinder_trimmed)
