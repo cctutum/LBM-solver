@@ -62,7 +62,11 @@ def main():
     
     for y in range(0, Ny):
         for x in range(0, Nx):
-            if distance(Nx//4, Ny//2, x, y) < 13: # radius of the cylinder is 13
+            if distance(Nx//4, Ny//2, x, y) < 10: # radius of the cylinder is 13
+                cylinder[y, x] = True
+            elif distance(Nx//2, 3*Ny//4, x, y) < 10:
+                cylinder[y, x] = True
+            elif distance(Nx//2, Ny//4, x, y) < 10:
                 cylinder[y, x] = True
                 
     # Main time loop
@@ -130,7 +134,7 @@ def main():
             plt.imshow(masked_field, cmap=cmap, interpolation='nearest') 
             # Note on colormap: blue for negative, red for positive values
             # plt.colorbar()
-            plt.title(label=f"Curl of Velocity field - Timestep={t}", fontsize=8)
+            plt.title(label=f"Vorticity field - Timestep={t}", fontsize=8)
             
             if saveImages:
                 plt.savefig(f'{path_figures}/curl_LBM_numpy_timestep_{t:04d}.png', dpi=120)
@@ -139,7 +143,7 @@ def main():
             plt.cla()
         
     if saveImages:
-        utils.create_gif_with_PIL(path_figures, "videos/Curl_Velocity.gif")
+        utils.create_gif_with_PIL(path_figures, "videos/Vorticity.gif")
         
     
 if __name__ == "__main__":
