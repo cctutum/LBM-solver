@@ -35,6 +35,55 @@ def distance(x1, y1, x2, y2):
     return np.sqrt((x2-x1)**2 + (y2-y1)**2)
 
 
+def equilibrium(F, cxs, cys, NL, weights, rho, ux, uy):
+    Feq = np.zeros_like(F)
+    for i, cx, cy, w in zip(range(NL), cxs, cys, weights):
+        Feq[:, :, i] = rho * w * (
+            1 + 3*(cx*ux + cy*uy) + 9*(cx*ux + cy*uy)**2/2 - 3*(ux**2 + uy**2)/2)  
+    return Feq
+
+
+def compute_field(field_var, ux, uy, boundary):
+    if field_var == "Velocity":
+        # Field variable: Velocity
+        field = np.sqrt(ux**2+uy**2)
+        # boundary array stays same
+    elif field_var == "Vorticity":
+        # Field variable: Vorticity (Curl of Velocity vector)
+        dfydx = ux[2:, 1:-1] - ux[0:-2, 1:-1]
+        dfxdy = uy[1:-1, 2:] - uy[1:-1, 0:-2]
+        field = dfydx - dfxdy
+        # boundary array is trimmed
+        boundary = boundary[1:-1, 1:-1]
+    return field, boundary
+
+
+def plot_field(field_var, ux, uy, boundary, t, saveImages, path_figures):
+    field, cylinder_trimmed = compute_field(field_var, ux, uy, boundary)
+        
+    # Create a masked array
+    masked_field = np.ma.masked_array(field, mask=cylinder_trimmed)
+    
+    # Create a custom colormap
+    cmap = plt.get_cmap('bwr').copy()
+    cmap.set_bad('black', 1.0)
+    
+    plt.imshow(masked_field, cmap=cmap, interpolation='nearest') 
+    # Note on colormap: blue for negative, red for positive values
+    # plt.colorbar()
+    if field_var == "Velocity":
+        label = "Velocity field"
+    elif field_var == "Vorticity":
+        label = "Vorticity field"
+    plt.title(label=f"{label} - Timestep={t}", fontsize=8)
+    
+    if saveImages:
+        plt.savefig(f'{path_figures}/LBM_numpy_timestep_{t:04d}.png', dpi=120)
+    
+    plt.pause(0.01)
+    plt.cla()
+
+
 def main():
     Nx, Ny = 400, 100 # Grid resolution
     tau = 0.53 # Kinnematic viscosity or time scale
@@ -87,7 +136,7 @@ def main():
         bcF = F[cylinder, :]
         bdF = bcF[:, [0, 5, 6, 7, 8, 1, 2, 3, 4]] # Reflect (opposite directions)
         
-        # FLuid variables
+        # Fluid variables
         rho = np.sum(F, 2) # density
         ux = np.sum(F * cxs, 2) / rho # momentum
         uy = np.sum(F * cys, 2) / rho
@@ -98,53 +147,15 @@ def main():
         uy[cylinder] = 0
         
         # Collision step
-        Feq = np.zeros_like(F)
-        for i, cx, cy, w in zip(range(NL), cxs, cys, weights):
-            Feq[:, :, i] = rho * w * (
-                1 + 3*(cx*ux + cy*uy) + 9*(cx*ux + cy*uy)**2/2 - 3*(ux**2 + uy**2)/2)        
-        
+        Feq = equilibrium(F, cxs, cys, NL, weights, rho, ux, uy)
         F += -(1/tau) * (F-Feq)
         
         if (plotRealTime and (t % plot_every == 0)):
-            
-            # Field variable: Velocity
-            velocity = np.sqrt(ux**2+uy**2)
-            
-            # Field variable: Curl of Velocity vector
-            # To plot regions of high and low vorticity
-            dfydx = ux[2:, 1:-1] - ux[0:-2, 1:-1]
-            dfxdy = uy[1:-1, 2:] - uy[1:-1, 0:-2]
-            curl = dfydx - dfxdy
-            
-            # Plot Field variable
-            # if shape of BC-boolean map (e.g., cylinder) does not match field shape,
-            # we need to trim the BC-boolean map
-            field = curl
-            if field.shape != cylinder.shape:
-                cylinder_trimmed = cylinder[1:-1, 1:-1]
-            else:
-                cylinder_trimmed = cylinder
-                
-            # Create a masked array
-            masked_field = np.ma.masked_array(field, mask=cylinder_trimmed)
-            
-            # Create a custom colormap
-            cmap = plt.get_cmap('bwr').copy()
-            cmap.set_bad('black', 1.0)
-            
-            plt.imshow(masked_field, cmap=cmap, interpolation='nearest') 
-            # Note on colormap: blue for negative, red for positive values
-            # plt.colorbar()
-            plt.title(label=f"Vorticity field - Timestep={t}", fontsize=8)
-            
-            if saveImages:
-                plt.savefig(f'{path_figures}/curl_LBM_numpy_timestep_{t:04d}.png', dpi=120)
-            
-            plt.pause(0.01)
-            plt.cla()
+            field_var = "Velocity" #"Vorticity"
+            plot_field(field_var, ux, uy, cylinder, t, saveImages, path_figures)
         
     if saveImages:
-        utils.create_gif_with_PIL(path_figures, "videos/Vorticity.gif")
+        utils.create_gif_with_PIL(path_figures, f"videos/{field_var}.gif")
         
     
 if __name__ == "__main__":
