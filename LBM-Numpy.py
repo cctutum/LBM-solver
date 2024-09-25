@@ -62,11 +62,11 @@ def main():
     
     for y in range(0, Ny):
         for x in range(0, Nx):
-            if distance(Nx//4, Ny//2, x, y) < 10: # radius of the cylinder is 13
+            if distance(Nx//4, Ny//4, x, y) < 8: # radius of the cylinder is 13
                 cylinder[y, x] = True
-            elif distance(Nx//2, 3*Ny//4, x, y) < 10:
+            elif distance(Nx//4, 2*Ny//4, x, y) < 8:
                 cylinder[y, x] = True
-            elif distance(Nx//2, Ny//4, x, y) < 10:
+            elif distance(Nx//4, 3*Ny//4, x, y) < 8:
                 cylinder[y, x] = True
                 
     # Main time loop
