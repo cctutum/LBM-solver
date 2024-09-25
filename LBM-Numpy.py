@@ -55,11 +55,12 @@ def main():
     weights = np.array([4/9, 1/9, 1/36, 1/9, 1/36, 1/9, 1/36, 1/9, 1/36]) # sums to 1
     
     # Initial Conditions (ICs)
-    F = np.ones((Ny, Nx, NL)) + 0.01 * np.random.randn(Ny, Nx, NL)
+    F = np.ones((Ny, Nx, NL)) + 0.01 * np.random.randn(Ny, Nx, NL) 
+    # np.ones() or np.zeros()??
     F[:, :, 3] = 2.3 # We assume there is a flow in the +x-direction (direction=3)
     
+    # Apply BCs (obstacles)
     cylinder = np.full((Ny, Nx), False)
-    
     for y in range(0, Ny):
         for x in range(0, Nx):
             if distance(Nx//4, Ny//4, x, y) < 8: # radius of the cylinder is 13
@@ -77,7 +78,7 @@ def main():
         F[:, -1, [6, 7, 8]] = F[:, -2, [6, 7, 8]]
         F[:, 0, [2, 3, 4]] = F[:, 1, [2, 3, 4]]
         
-        # Streaming step
+        # Streaming step (Sharing velocities between neighbors)
         for i, cx, cy in zip(range(NL), cxs, cys):
             F[:, :, i] = np.roll(F[:, :, i], cx, axis=1)
             F[:, :, i] = np.roll(F[:, :, i], cy, axis=0)
