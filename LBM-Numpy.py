@@ -90,6 +90,9 @@ def main():
     Nt = 6000
     plotRealTime = True
     saveImages = True
+    obstacles = [{"pos-x": Nx//4, "pos-y": Ny//4, "radius": 8},
+                 {"pos-x": Nx//4, "pos-y": 2*Ny//4, "radius": 8},
+                 {"pos-x": Nx//4, "pos-y": 3*Ny//4, "radius": 8}]
     
     # Delete previous images before saving new ones
     if saveImages:
@@ -112,12 +115,9 @@ def main():
     cylinder = np.full((Ny, Nx), False)
     for y in range(0, Ny):
         for x in range(0, Nx):
-            if distance(Nx//4, Ny//4, x, y) < 8: # radius of the cylinder is 13
-                cylinder[y, x] = True
-            elif distance(Nx//4, 2*Ny//4, x, y) < 8:
-                cylinder[y, x] = True
-            elif distance(Nx//4, 3*Ny//4, x, y) < 8:
-                cylinder[y, x] = True
+            for obs in obstacles: 
+                if distance(obs['pos-x'], obs['pos-y'], x, y) < obs['radius']:
+                    cylinder[y, x] = True
                 
     # Main time loop
     for t in range(Nt+1):
@@ -151,7 +151,7 @@ def main():
         F += -(1/tau) * (F-Feq)
         
         if (plotRealTime and (t % plot_every == 0)):
-            field_var = "Velocity" #"Vorticity"
+            field_var = "Vorticity"
             plot_field(field_var, ux, uy, cylinder, t, saveImages, path_figures)
         
     if saveImages:
