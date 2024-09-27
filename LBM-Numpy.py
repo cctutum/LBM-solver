@@ -82,6 +82,35 @@ def plot_field(field_var, ux, uy, boundary, t, saveImages, path_figures):
     
     plt.pause(0.01)
     plt.cla()
+    
+    
+def create_cylinder_mask(Ny, Nx, obstacles):
+    y, x = np.ogrid[:Ny, :Nx]
+    cylinder = np.full((Ny, Nx), False)
+    
+    for obs in obstacles:
+        center_x, center_y = obs['pos-x'], obs['pos-y']
+        radius = obs['radius']
+        
+        # Create a mask for this obstacle
+        mask = (x - center_x)**2 + (y - center_y)**2 <= radius**2
+        
+        # Update the cylinder array
+        cylinder |= mask
+        
+    return cylinder
+
+
+def create_cylinder_mask_naive(Ny, Nx, obstacles):
+    cylinder = np.full((Ny, Nx), False)
+    
+    for y in range(0, Ny):
+        for x in range(0, Nx):
+            for obs in obstacles: 
+                if distance(obs['pos-x'], obs['pos-y'], x, y) < obs['radius']:
+                    cylinder[y, x] = True
+                    
+    return cylinder
 
 
 def main():
@@ -112,12 +141,7 @@ def main():
     F[:, :, 3] = 2.3 # We assume there is a flow in the +x-direction (direction=3)
     
     # Apply BCs (obstacles)
-    cylinder = np.full((Ny, Nx), False)
-    for y in range(0, Ny):
-        for x in range(0, Nx):
-            for obs in obstacles: 
-                if distance(obs['pos-x'], obs['pos-y'], x, y) < obs['radius']:
-                    cylinder[y, x] = True
+    cylinder = create_cylinder_mask(Ny, Nx, obstacles)
                 
     # Main time loop
     for t in range(Nt+1):
