@@ -95,8 +95,10 @@ def create_cylinder_mask(Ny, Nx, obstacles):
         # Create a mask for this obstacle
         mask = (x - center_x)**2 + (y - center_y)**2 <= radius**2
         
-        # Update the cylinder array
-        cylinder |= mask
+        # Update the cylinder (mask) array
+        cylinder |= mask # (in-place OR) equivalent to "cylinder = cylinder | mask"
+        # but we avoid creating a new array for each obstacle
+        # It updates "cylinder" in-place with new "mask" array
         
     return cylinder
 
