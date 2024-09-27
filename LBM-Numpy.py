@@ -50,12 +50,26 @@ def compute_field(field_var, ux, uy, boundary):
         # boundary array stays same
     elif field_var == "Vorticity":
         # Field variable: Vorticity (Curl of Velocity vector)
-        dfydx = ux[2:, 1:-1] - ux[0:-2, 1:-1]
-        dfxdy = uy[1:-1, 2:] - uy[1:-1, 0:-2]
-        field = dfydx - dfxdy
-        # boundary array is trimmed
-        boundary = boundary[1:-1, 1:-1]
+        # TODO: Check the implementation!!
+        # field = calculate_vorticity_withManualGrad(ux, uy, 1, 1)
+        # boundary = boundary[1:-1, 1:-1] # boundary array is trimmed
+        field = calculate_vorticity(ux, uy, 1, 1)
     return field, boundary
+
+
+def calculate_vorticity_withManualGrad(velocity_x, velocity_y, dx, dy):
+    # dx, dy = 1, 1 
+    # TODO: Implement more general grid
+    dvy_dx = velocity_x[2:, 1:-1] - velocity_x[:-2, 1:-1]
+    dvx_dy = velocity_y[1:-1, 2:] - velocity_y[1:-1, :-2]
+    return dvy_dx - dvx_dy
+
+
+def calculate_vorticity(velocity_x, velocity_y, dx, dy):
+    # This implementation looks more elegant!
+    dvx_dy = np.gradient(velocity_x, dy, axis=0)
+    dvy_dx = np.gradient(velocity_y, dx, axis=1)
+    return dvy_dx - dvx_dy
 
 
 def plot_field(field_var, ux, uy, boundary, t, saveImages, path_figures):
@@ -121,9 +135,9 @@ def main():
     Nt = 6000
     plotRealTime = True
     saveImages = True
-    obstacles = [{"pos-x": Nx//4, "pos-y": Ny//4, "radius": 8},
-                 {"pos-x": Nx//4, "pos-y": 2*Ny//4, "radius": 8},
-                 {"pos-x": Nx//4, "pos-y": 3*Ny//4, "radius": 8}]
+    obstacles = [{"pos-x": Nx//4, "pos-y": Ny//4, "radius": 8}]
+                 # {"pos-x": Nx//4, "pos-y": 2*Ny//4, "radius": 8},
+                 # {"pos-x": Nx//4, "pos-y": 3*Ny//4, "radius": 8}]
     
     # Delete previous images before saving new ones
     if saveImages:
