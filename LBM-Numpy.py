@@ -135,9 +135,9 @@ def main():
     Nt = 6000
     plotRealTime = True
     saveImages = True
-    obstacles = [{"pos-x": Nx//4, "pos-y": Ny//4, "radius": 8}]
-                 # {"pos-x": Nx//4, "pos-y": 2*Ny//4, "radius": 8},
-                 # {"pos-x": Nx//4, "pos-y": 3*Ny//4, "radius": 8}]
+    obstacles = [{"pos-x": Nx//4, "pos-y": Ny//4, "radius": 8},
+                  {"pos-x": Nx//4, "pos-y": 2*Ny//4, "radius": 8},
+                  {"pos-x": Nx//4, "pos-y": 3*Ny//4, "radius": 8}]
     
     # Delete previous images before saving new ones
     if saveImages:
@@ -186,7 +186,7 @@ def main():
         ux[cylinder] = 0
         uy[cylinder] = 0
         
-        # Collision step
+        # Collision step (BGK Equation)
         Feq = equilibrium(F, cxs, cys, NL, weights, rho, ux, uy)
         F += -(1/tau) * (F-Feq)
         
