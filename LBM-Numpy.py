@@ -152,6 +152,7 @@ def main():
     weights = np.array([4/9, 1/9, 1/36, 1/9, 1/36, 1/9, 1/36, 1/9, 1/36]) # sums to 1
     
     # Initial Conditions (ICs)
+    # F: Discrete velocities
     F = np.ones((Ny, Nx, NL)) + 0.01 * np.random.randn(Ny, Nx, NL) 
     # np.ones() or np.zeros()??
     F[:, :, 3] = 2.3 # We assume there is a flow in the +x-direction (direction=3)
