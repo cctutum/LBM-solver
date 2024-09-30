@@ -135,6 +135,7 @@ def main():
     Nt = 6000
     plotRealTime = True
     saveImages = True
+    saveVTK = True
     obstacles = [{"pos-x": Nx//4, "pos-y": Ny//4, "radius": 8},
                   {"pos-x": Nx//4, "pos-y": 2*Ny//4, "radius": 8},
                   {"pos-x": Nx//4, "pos-y": 3*Ny//4, "radius": 8}]
@@ -144,6 +145,11 @@ def main():
         path_figures = os.path.join(os.getcwd() + "/..", "figures") 
         os.makedirs(path_figures, exist_ok=True)
         utils.clear_folder_contents(path_figures)
+        
+    if saveVTK:
+        path_vtk = os.path.join(os.getcwd() + "/..", "vtk") 
+        os.makedirs(path_vtk, exist_ok=True)
+        utils.clear_folder_contents(path_vtk)
     
     # Lattice speeds and weights
     NL = 9 # D2Q9 (9 lattice directions)
@@ -158,6 +164,7 @@ def main():
     F[:, :, 3] = 2.3 # We assume there is a flow in the +x-direction (direction=3)
     
     # Apply BCs (obstacles)
+    X, Y = np.meshgrid(range(Nx), range(Ny))
     cylinder = create_cylinder_mask(Ny, Nx, obstacles)
                 
     # Main time loop
@@ -194,6 +201,9 @@ def main():
         if (plotRealTime and (t % plot_every == 0)):
             field_var = "Vorticity"
             plot_field(field_var, ux, uy, cylinder, t, saveImages, path_figures)
+            if saveVTK:
+                utils.write_VTK(path_vtk, f"Velocity_{t:04d}", 
+                                X, Y, ux, uy)
         
     if saveImages:
         utils.create_gif_with_PIL(path_figures, f"../videos/{field_var}.gif")

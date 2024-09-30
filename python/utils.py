@@ -2,6 +2,8 @@ from PIL import Image
 import glob
 import os
 import shutil
+import numpy as np
+from pyevtk.hl import gridToVTK
 
 def create_gif_with_PIL(path, gif_filename):
     
@@ -43,3 +45,25 @@ def clear_folder_contents(folder_path):
             print(f"The folder '{folder_path}' is empty.")
     else:
         print(f"The folder '{folder_path}' does not exist.")
+        
+        
+def write_VTK(path, filename, x, y, velocity_x, velocity_y):
+    # 2D data needs to be converted to 3D for VTK format
+    ny, nx = x.shape
+    z = np.zeros((ny, nx, 1))
+    x3d = x[:, :, np.newaxis]
+    y3d = y[:, :, np.newaxis]
+    
+    # Extend velocity components to 3D
+    vx = velocity_x[:, :, np.newaxis]
+    vy = velocity_y[:, :, np.newaxis]
+    vz = np.zeros_like(vx)
+    
+    # Write VTK file
+    gridToVTK(os.path.join(path, filename), 
+              x3d, y3d, z, 
+              pointData={"Velocity": (vx, vy, vz)})
+    
+    
+    
+    
