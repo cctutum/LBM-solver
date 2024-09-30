@@ -28,7 +28,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 import utils
-import pickle
+# import pickle
 
 plot_every = 100 # iterations
 
