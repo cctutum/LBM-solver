@@ -141,7 +141,7 @@ def main():
     
     # Delete previous images before saving new ones
     if saveImages:
-        path_figures = os.path.join(os.getcwd(), "figures") 
+        path_figures = os.path.join(os.getcwd() + "/..", "figures") 
         os.makedirs(path_figures, exist_ok=True)
         utils.clear_folder_contents(path_figures)
     
@@ -196,7 +196,7 @@ def main():
             plot_field(field_var, ux, uy, cylinder, t, saveImages, path_figures)
         
     if saveImages:
-        utils.create_gif_with_PIL(path_figures, f"videos/{field_var}.gif")
+        utils.create_gif_with_PIL(path_figures, f"../videos/{field_var}.gif")
         
     
 if __name__ == "__main__":
