@@ -47,22 +47,36 @@ def clear_folder_contents(folder_path):
         print(f"The folder '{folder_path}' does not exist.")
         
         
-def write_VTK(path, filename, x, y, velocity_x, velocity_y):
-    # 2D data needs to be converted to 3D for VTK format
+def write_VTK(path, filename, field_var, x, y, field):
+    # 2D data needs to be converted to 3D for VTK format    
     ny, nx = x.shape
-    z = np.zeros((ny, nx, 1))
     x3d = x[:, :, np.newaxis]
     y3d = y[:, :, np.newaxis]
+    z3d = np.zeros((ny, nx, 1))
     
     # Extend velocity components to 3D
-    vx = velocity_x[:, :, np.newaxis]
-    vy = velocity_y[:, :, np.newaxis]
-    vz = np.zeros_like(vx)
+    if field_var == "Velocity":
+        ux, uy = field
+        ux = ux[:, :, np.newaxis] # ux
+        uy = uy[:, :, np.newaxis] # uy
+        uz = np.zeros_like(ux) # uz
+        
+        # Write VTK file
+        gridToVTK(os.path.join(path, filename), x3d, y3d, z3d, 
+                  pointData={f"{field_var}": (ux, uy, uz)})
+    elif field_var == "Vorticity":
+        # For two-dimensional flows, vorticity can be treated as a scalar field. 
+        # This is because in 2D, the vorticity vector is always perpendicular 
+        # to the plane of motion, so only its magnitude (and sign) matters.
+        # Write VTK file
+        vorticity = field
+        vorticity = vorticity[:, :, np.newaxis]
+        # vorticity[:, :, 2] = np.zeros_like(field[0, :, :])
+        gridToVTK(os.path.join(path, filename), x3d, y3d, z3d, 
+                  pointData={f"{field_var}": (vorticity)})
+        
     
-    # Write VTK file
-    gridToVTK(os.path.join(path, filename), 
-              x3d, y3d, z, 
-              pointData={"Velocity": (vx, vy, vz)})
+
     
     
     

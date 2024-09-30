@@ -28,6 +28,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 import utils
+import pickle
 
 plot_every = 100 # iterations
 
@@ -43,18 +44,15 @@ def equilibrium(F, cxs, cys, NL, weights, rho, ux, uy):
     return Feq
 
 
-def compute_field(field_var, ux, uy, boundary):
+def compute_field(field_var, ux, uy):
     if field_var == "Velocity":
         # Field variable: Velocity
         field = np.sqrt(ux**2+uy**2)
         # boundary array stays same
     elif field_var == "Vorticity":
         # Field variable: Vorticity (Curl of Velocity vector)
-        # TODO: Check the implementation!!
-        # field = calculate_vorticity_withManualGrad(ux, uy, 1, 1)
-        # boundary = boundary[1:-1, 1:-1] # boundary array is trimmed
         field = calculate_vorticity(ux, uy, 1, 1)
-    return field, boundary
+    return field
 
 
 def calculate_vorticity_withManualGrad(velocity_x, velocity_y, dx, dy):
@@ -73,10 +71,10 @@ def calculate_vorticity(velocity_x, velocity_y, dx, dy):
 
 
 def plot_field(field_var, ux, uy, boundary, t, saveImages, path_figures):
-    field, cylinder_trimmed = compute_field(field_var, ux, uy, boundary)
+    field = compute_field(field_var, ux, uy)
         
     # Create a masked array
-    masked_field = np.ma.masked_array(field, mask=cylinder_trimmed)
+    masked_field = np.ma.masked_array(field, mask=boundary)
     
     # Create a custom colormap
     cmap = plt.get_cmap('bwr').copy()
@@ -85,11 +83,7 @@ def plot_field(field_var, ux, uy, boundary, t, saveImages, path_figures):
     plt.imshow(masked_field, cmap=cmap, interpolation='nearest') 
     # Note on colormap: blue for negative, red for positive values
     # plt.colorbar()
-    if field_var == "Velocity":
-        label = "Velocity field"
-    elif field_var == "Vorticity":
-        label = "Vorticity field"
-    plt.title(label=f"{label} - Timestep={t}", fontsize=8)
+    plt.title(label=f"{field_var} field - Timestep={t}", fontsize=8)
     
     if saveImages:
         plt.savefig(f'{path_figures}/LBM_numpy_timestep_{t:04d}.png', dpi=120)
@@ -165,6 +159,8 @@ def main():
     
     # Apply BCs (obstacles)
     X, Y = np.meshgrid(range(Nx), range(Ny))
+    X = X.astype("float64")
+    Y = Y.astype("float64")
     cylinder = create_cylinder_mask(Ny, Nx, obstacles)
                 
     # Main time loop
@@ -188,22 +184,27 @@ def main():
         rho = np.sum(F, 2) # density
         ux = np.sum(F * cxs, 2) / rho # momentum
         uy = np.sum(F * cys, 2) / rho
+        vorticity = compute_field("Vorticity", ux, uy)
         
         # Apply BCs?
         F[cylinder, :] = bdF
         ux[cylinder] = 0
         uy[cylinder] = 0
+        vorticity[cylinder] = 0
         
         # Collision step (BGK Equation)
         Feq = equilibrium(F, cxs, cys, NL, weights, rho, ux, uy)
         F += -(1/tau) * (F-Feq)
         
         if (plotRealTime and (t % plot_every == 0)):
-            field_var = "Vorticity"
+            field_var = "Vorticity" #"Vorticity"
             plot_field(field_var, ux, uy, cylinder, t, saveImages, path_figures)
             if saveVTK:
-                utils.write_VTK(path_vtk, f"Velocity_{t:04d}", 
-                                X, Y, ux, uy)
+                if field_var == "Velocity":
+                    field = ux, uy
+                elif field_var == "Vorticity":
+                    field = vorticity
+                utils.write_VTK(path_vtk, f"{field_var}_{t:04d}", field_var, X, Y, field)
         
     if saveImages:
         utils.create_gif_with_PIL(path_figures, f"../videos/{field_var}.gif")
@@ -211,6 +212,8 @@ def main():
     
 if __name__ == "__main__":
     main()
+    
+    
 
 
 
