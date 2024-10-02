@@ -1,4 +1,4 @@
-r"""
+"""
 Solves the incompressible Navier Stokes equations using the Lattice-Boltzmann
 Method¹. The scenario is the flow around a cylinder in 2D which yields a van
 Karman vortex street.
