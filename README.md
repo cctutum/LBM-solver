@@ -5,7 +5,3 @@ Flow Simulation using Lattice-Boltzmann Method (LBM) in Python with Numpy and JA
 ![](videos/Vorticity.gif)
 
 ![](videos/Velocity.gif)
-
-
-
-
